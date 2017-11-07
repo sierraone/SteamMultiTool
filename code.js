@@ -8,18 +8,20 @@
 // @grant
 // ==/UserScript==
 /* jshint -W097 */
-var autoRefresh=1;
 
+var autoRefresh=1;
 var pollingTime=700;
 var delayTime=2500;
 var priceFloor=0.25;
 var minProfit=0.05;
-//Track requests since start of session
+//Track requests and queries since start of session
+var refreshes=0;
 var queries=0;
 function updateTitle()
 {
-    queries++;
-    document.title="Requests: "+queries;
+    refreshes++;
+    var ratio = parseFloat(Math.round(queries/refreshes * 100) / 100).toFixed(2);
+    document.title="Main: "+refreshes+" / Sub: "+queries+" "+ratio;
 }
 //get main container
 var x=document.getElementById("sellListingRows");
@@ -139,6 +141,7 @@ function openLink(url,minPrice,gameName)
     //find prices for item
     function extractPrices()
     {
+        queries++;
         htmlRequest.innerHTML=httpGet(url);
         var listings=htmlRequest.querySelectorAll("div.market_listing_row");
         for (var j=1;j<listings.length;j++)
