@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Steam Market Tool Beta
+// @name         Steam MultiTool
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  Filter New Listings
 // @author       SierraOne
 // @match        steamcommunity.com/market/
@@ -65,7 +65,7 @@ function KeyCheck(e)
         y=filter(y,filterByRecent,false);  //remove non-recent listings
         y=filter(y,filterByGame,true);      //remove non-CSGO listing
         y=filter(y,removeCopies,false);   //remove old opened buy windows
-        y=filter(y,filterByName,true);    //remove listings with blacklisted words
+        y=filter(y,filterByName,true); //remove by blacklisted names
         y=filter(y,filterByPrice,true);   //remove sold and non-budget listings
         overlayPriceInfo(y);         //display minprice
         viabilityOverlay(y);         //compare market listings
@@ -232,9 +232,36 @@ function filter(listingArray,filterFunction,deleteListing)
     }
     return resultArray;
 }
+//remove blacklisted words
+function filterByName(listing)
+{
+    var name=listing.querySelector("a.market_listing_item_name_link").innerHTML;
+    var filteredWords=["Sticker",
+                       "Operation Hydra Case",
+                       "Gamma Case",
+                       "Glove Case",
+                       "Spectrum Case",
+                       "Chroma 3 Case",
+                       "Spectrum 2 Case",
+                       "Gift Package",
+                       " Capsule",
+                       " Key",
+                       " Pass",
+                       "Name Tag",
+                       "Music Kit",
+                       "ESL ",
+                       "DreamHack ",
+                       "Swap Tool",
+                       "Graffiti"
+                      ];
+    if (new RegExp(filteredWords.join("|")).test(name)) {
+        return 0;
+    }
+    return 1;
+}
 function filterByGame(listing)
 {
-    return (findGameName(listing).innerHTML=="Counter-Strike: Global Offensive" || findGameName(listing).innerHTML=="Team Fortress 2");
+    return (findGameName(listing).innerHTML=="Counter-Strike: Global Offensive");
 }
 
 //remove non-recent listings
@@ -255,29 +282,6 @@ function filterByPrice(listing)
     return (price!="Sold!" && parseFloat(price)<=priceLimit && parseFloat(price)>=priceFloor);
 }
 
-//remove blacklisted words
-function filterByName(listing)
-{
-    var name=listing.querySelector("a.market_listing_item_name_link").innerHTML;
-    var filteredWords=["Sticker",
-                       " Case",
-                       "Gift Package",
-                       " Capsule",
-                       " Key",
-                       " Pass",
-                       "Name Tag",
-                       "Music Kit",
-                       "ESL ",
-                       "DreamHack ",
-                       "Swap Tool",
-                       "Pallet of Presents",
-                       "Sealed Graffiti"
-                      ];
-    if (new RegExp(filteredWords.join("|")).test(name)) {
-        return 0;
-    }
-    return 1;
-}
 //displays minimum price required for profit
 function overlayPriceInfo(listingArray)
 {
@@ -333,30 +337,14 @@ function compareResults(minPrice, priceList)
         percentage=" +"+(((priceList[0]-minPrice)/minPrice)*100).toFixed(1)+"%";
         autoRefresh=0;
         document.getElementById("audioTag").play();
-        document.getElementById("audioTag").play();
+        document.getElementById("audioTag").load();
         document.getElementById("audioTag").play();
         return  ["VIABLE BUY"+percentage,"green"];
     }
-    else if (minPrice>=priceList[priceList.length-1])
-    {
-        percentage=" +"+(((minPrice-priceList[0])/priceList[0])*100).toFixed(1)+"%";
-        return  ["NOT VIABLE"+percentage,"red"];
-    }
     else
     {
-        for (var k=0;k<priceList.length;k++)
-        {
-            if (priceList[k]>minPrice)
-            {
-                ranking=k+1;
-                break;
-            }
-        }
-        if (ranking==1){
-            percentage=" +"+(((minPrice-priceList[0])/priceList[0])*100).toFixed(1)+"%";
-            return ["NOT VIABLE"+percentage,"red"];
-        }
-        return  ["Price Rank # "+ranking,"yellow"];
+        percentage=" +"+(((minPrice-priceList[0])/priceList[0])*100).toFixed(1)+"%";
+        return  ["NOT VIABLE","red"];
     }
 }
 
