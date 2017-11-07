@@ -194,7 +194,7 @@ function setStorage(url, value)
 {
     localStorage.setItem(url,value);
     var date = new Date();
-    var schedule=Math.round((date.setSeconds(date.getSeconds()+60))/1000);
+    var schedule=Math.round((date.setSeconds(date.getSeconds()+600))/1000);
     localStorage.setItem(url+"_time",schedule);
 }
 
