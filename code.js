@@ -17,11 +17,12 @@ var minProfit=0.05;
 //Track requests and queries since start of session
 var refreshes=0;
 var queries=0;
+var cached=0;
 function updateTitle()
 {
     refreshes++;
-    var ratio = parseFloat(Math.round(queries/refreshes * 100) / 100).toFixed(2);
-    document.title="Main: "+refreshes+" / Sub: "+queries+" "+ratio;
+    var ratio = parseFloat(Math.round(cached/queries * 100) / 100).toFixed(2);
+    document.title="Main: "+refreshes+" / Sub: "+queries+" / "+ratio;
 }
 //get main container
 var x=document.getElementById("sellListingRows");
@@ -159,6 +160,7 @@ function openLink(url,minPrice,gameName)
     //check if key exists
     if (localStorage.getItem(url))
     {
+        cached++;
         var storagePriceArray=localStorage.getItem(url).split(",");
         for (var m=0;m<storagePriceArray.length;m++)
         {
