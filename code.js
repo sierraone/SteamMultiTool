@@ -187,6 +187,10 @@ function httpGet(theUrl)
     xmlHttp = new XMLHttpRequest();
     xmlHttp.open( "GET", theUrl, false);
     xmlHttp.send( null );
+    xmlHttp.onreadystatechange = function ()
+    {
+     if (this.status==429) alert("Daily quota reached; either wait or use VPN");   
+    }
     return xmlHttp.responseText;
 }
 
