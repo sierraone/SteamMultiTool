@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name         Steam MultiTool
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.4
 // @description  Filter New Listings
 // @author       SierraOne
 // @match        steamcommunity.com/market/
 // @grant
-// @require http://code.jquery.com/jquery-3.2.1.min.js
+// @require http://code.jquery.com/jquery-3.3.1.min.js
 // ==/UserScript==
 /* jshint -W097 */
 
@@ -56,12 +56,12 @@ function KeyCheck(e)
     function processResults()
     {
         var y=document.querySelectorAll("div.market_recent_listing_row");
-        y=filter(y,filterByRecent,false);  //remove non-recent listings
-        y=filter(y,filterByGame,true);      //remove non-CSGO listing
-        y=filter(y,removeCopies,false);   //remove old opened buy windows
-        y=filter(y,filterByPrice,true);   //remove sold and non-budget listings
-        overlayPriceInfo(y);         //display minprice
-        viabilityOverlay(y);         //compare market listings
+        y=filter(y,filterByRecent,false);//remove non-recent listings
+        y=filter(y,filterByGame,true);//remove non-CSGO listing
+        y=filter(y,removeCopies,false);//remove old opened buy windows
+        y=filter(y,filterByPrice,true);//remove sold and non-budget listings
+        overlayPriceInfo(y);//display minprice
+        viabilityOverlay(y);//compare market listings
         allowRefresh=false;
         startTimer();
     }
@@ -135,9 +135,9 @@ function openLink(url,minPrice,gameName)
     function extractPrices()
     {
         //first get the name
-        var nameString = url.split("http://steamcommunity.com/market/listings/730/")[1];
+        var nameString = url.split("https://steamcommunity.com/market/listings/730/")[1];
         //construct API url
-        var apiURL = "http://steamcommunity.com/market/priceoverview/?appid=730&currency=20&market_hash_name="+nameString;
+        var apiURL = "https://steamcommunity.com/market/priceoverview/?appid=730&currency=20&market_hash_name="+nameString;
         //log json results
          $.ajaxSetup({
         async: false
@@ -145,6 +145,9 @@ function openLink(url,minPrice,gameName)
         $.getJSON( apiURL, function( data ) {
             if (data.success) {
             currentPrice = parseFloat(data.lowest_price.split("CDN$ ")[1]);
+            var volume = parseInt(data.volume);
+                if (volume<10) currentPrice = 0;
+                console.log("Market Volume: "+volume+" Current Min Price: "+currentPrice);
             queries++;
             setStorage(url,currentPrice);
             }
@@ -301,7 +304,6 @@ function compareResults(minPrice, onlinePrice)
     else
     {
         percentage=" +"+(((minPrice-onlinePrice)/onlinePrice)*100).toFixed(1)+"%";
-        if (percentage==" +Infinity%") console.log(minPrice+" "+onlinePrice);
         return  ["NOT VIABLE"+percentage,"red"];
     }
 }
