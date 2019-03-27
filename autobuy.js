@@ -156,6 +156,7 @@ function openLink(url,minPrice,gameName)
          });
         $.getJSON( apiURL, function( data ) {
             if (data.success) {
+                console.log(data);
             currentPrice = parseFloat(data.lowest_price.split("CDN$ ")[1]);
             var volume = parseInt(data.volume);
                 if (volume<10) currentPrice = 0;
