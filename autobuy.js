@@ -291,8 +291,10 @@ function viabilityOverlay(listingArray)
 
 function findMinPrice(listing)
 {
+    console.log(listing);
     var itemPrice=listing.querySelector("span.market_listing_price_with_fee");
     var price=itemPrice.innerHTML.trim().replace(/[^\d+,.]+[$.]/g,"").replace(",",".");
+    if (price>100) console.log(price);
     return (price*1.15+minProfit).toFixed(2);
 
 }
